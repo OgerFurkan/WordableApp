@@ -47,7 +47,7 @@ public class Game {
                                 tempI[indexOfWord] = null;
                                 System.out.println("--------------------------------------------------------------------");
                             } else {
-                                System.out.println("Maalesef Yanlış :(");
+                                System.out.printf("Maalesef Yanlış :( Doğrusu : '%s' \n ", turkce[indexOfWord]);
                                 ++falseAnswer;
                                 --tempKelimeSayisi;
                                 falseWords.add(tempI[indexOfWord]);

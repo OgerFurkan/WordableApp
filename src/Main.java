@@ -9,7 +9,7 @@ public class Main {
         String[] ingilizceKelimeDizisi = new String[maxSize];
         String[] turkceKelimeDizisi = new String[maxSize];
         int kelimeSayisi = 0;
-        try (BufferedReader br = new BufferedReader(new FileReader(dosyaAdi))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("Words.txt"))) {
             String satir;
             while ((satir = br.readLine()) != null && kelimeSayisi < maxSize) {
                 String[] kelimeler = satir.split(" = ");
