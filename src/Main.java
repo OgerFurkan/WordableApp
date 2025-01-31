@@ -1,15 +1,14 @@
 import java.io.*;
-import java.sql.SQLOutput;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        String dosyaAdi = "Words.txt";
+        String fileName = "Words.txt";
         int maxSize=5000;
         String[] ingilizceKelimeDizisi = new String[maxSize];
         String[] turkceKelimeDizisi = new String[maxSize];
         int kelimeSayisi = 0;
-        try (BufferedReader br = new BufferedReader(new FileReader(dosyaAdi))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String satir;
             while ((satir = br.readLine()) != null && kelimeSayisi < maxSize) {
                 String[] kelimeler = satir.split(" = ");
@@ -24,10 +23,10 @@ public class Main {
         }
 
         Scanner scanner = new Scanner(System.in);
-        boolean programDevam = true;
+        boolean pContinue = true;
 
-        while (programDevam) {
-            System.out.println("Seçim yapın:");
+        while (pContinue) {
+            System.out.println("Seçim yapın:\n");
             System.out.println("1. Kelimeleri Listele.");
             System.out.println("2. Yeni Kelime Ekle.");
             System.out.println("3. Hafıza Oyununu Başlatın.");
@@ -51,7 +50,7 @@ public class Main {
                     System.out.println("--------------------------------------------------------------------");
                     break;
                 case "2":
-                    boolean flag=true;
+                    boolean isValid2 =true;
                     System.out.print("İngilizce kelimeyi girin: ");
                     String yeniIngilizceKelime = scanner.nextLine();
                     for (String temp:ingilizceKelimeDizisi) {
@@ -60,64 +59,85 @@ public class Main {
                         else if(temp.equalsIgnoreCase(yeniIngilizceKelime)){
                             System.out.println("!!!!! Bu kelime mevcut !!!!! ");
                             System.out.println("--------------------------------------------------------------------");
-                            flag=false;
+                            isValid2 =false;
                         }
                     }
-                    if (flag){
+                    if (isValid2){
                         System.out.print("Türkçe karşılığını girin: ");
                         String yeniTurkceKelime = scanner.nextLine();
                         if (kelimeSayisi < maxSize) {
                             ingilizceKelimeDizisi[kelimeSayisi] = yeniIngilizceKelime;
                             turkceKelimeDizisi[kelimeSayisi] = yeniTurkceKelime;
                             kelimeSayisi++;
-                            try (BufferedWriter bw = new BufferedWriter(new FileWriter(dosyaAdi, true))) {
+                            try (BufferedWriter bw = new BufferedWriter(new FileWriter(fileName, true))) {
                                 bw.write(yeniIngilizceKelime + " = " + yeniTurkceKelime);
                                 bw.newLine();
                             } catch (IOException e) {
                                 System.out.println("Dosyaya yazma hatası: " + e.getMessage());
                             }
-                            System.out.println("Kelime başarıyla eklendi.");
+                            System.out.println("******* !!!! Kelime başarıyla eklendi. !!!! *******");
                             System.out.println("--------------------------------------------------------------------");
                         }
                     }
-                    else if(kelimeSayisi>=5000) {
+                    else if(kelimeSayisi>=maxSize) {
                         System.out.println("Dizi dolmuş, yeni kelime eklenemiyor.");
                         System.out.println("--------------------------------------------------------------------");
                     }
                     break;
 
                 case"3":
-                    Game game = new Game(ingilizceKelimeDizisi,turkceKelimeDizisi,kelimeSayisi);
+                    Game game = new Game(ingilizceKelimeDizisi,turkceKelimeDizisi,kelimeSayisi,maxSize);
                     game.gameStart();
                     break;
                 case"4":
-                    System.out.println("Güncellemek istediğiniz ingilizce kelimenin numarasını seçin ");
-                    boolean foundUpdate=false;
-                    for (int i = 0; i < kelimeSayisi; i++) {
-                        System.out.println(i+1+")"+ingilizceKelimeDizisi[i] + " = " + turkceKelimeDizisi[i]);
-                    }
-                    int number=scanner.nextInt();
-                    for (int i=1;i<=kelimeSayisi;i++){
-                        if(number==i){
-                            System.out.print("Yeni anlamını yazınız: ");
-                            String updatedWord=scanner.next();
-                            System.out.println();
-                            turkceKelimeDizisi[i-1]=updatedWord;
-                            System.out.println("Kelime başarıyla güncellendi...");
+                    System.out.println("--------------------------------------------------------------------");
+                    boolean isValid4=false;
+                    int inputNumber = 0;
+                    while (!isValid4) {
+                        System.out.println("0) Çıkmak için");
+                        for (int i = 0; i < kelimeSayisi; i++) {
+                            System.out.println((i+1)+") "+ingilizceKelimeDizisi[i] + " = " + turkceKelimeDizisi[i]);
+                        }
+                        System.out.println("Güncellemek istediğiniz ingilizce kelimenin numarasını seçin: ");
+                        String input = scanner.nextLine();
+                        try {
+                            inputNumber = Integer.parseInt(input);
+                            if(inputNumber==0) {
+                                System.out.println("Ana menüye Dönülüyor...");
+                                System.out.println("--------------------------------------------------------------------");
+                                break;
+                            }
+                            else if(inputNumber>kelimeSayisi){
+                                System.out.println("Girdiğiniz numara geçersiz...");
+                                System.out.println("--------------------------------------------------------------------");
+                            }
+                            else{
+                                isValid4 = true;
+                            }
+                        } catch (NumberFormatException e) {
+                            System.out.println("Geçersiz giriş! Lütfen bir tam sayı girin.");
                             System.out.println("--------------------------------------------------------------------");
-                            foundUpdate=true;
-                            break;
                         }
                     }
-                    if(!foundUpdate){
-                        System.out.println("Girdiğiniz numara geçersiz...");
+                    if(isValid4){
+                        System.out.println("Yeni anlamını yazınız: ");
+                        String updatedWord=scanner.nextLine();
+                        turkceKelimeDizisi[inputNumber-1]=updatedWord;
+                        System.out.println("Kelime başarıyla güncellendi...");
+                        System.out.println("--------------------------------------------------------------------");
+                        updateFile(kelimeSayisi,ingilizceKelimeDizisi,turkceKelimeDizisi,fileName);
+                        break;
                     }
-                    updateFile(kelimeSayisi,ingilizceKelimeDizisi,turkceKelimeDizisi);
                     break;
                 case"5":
-                    System.out.print("Silmek istediğiniz İngilizce kelimeyi girin: ");
+                    System.out.print("Çıkmak için 0' a basın ya da Silmek istediğiniz İngilizce kelimeyi girin: ");
                     String delete = scanner.nextLine();
                     boolean foundDelete = false;
+                    if (delete.equalsIgnoreCase("0")){
+                        System.out.println("Ana menüye Dönülüyor...");
+                        System.out.println("--------------------------------------------------------------------");
+                        break;
+                    }
                     for (int i = 0; i < kelimeSayisi; i++) {
                         if (ingilizceKelimeDizisi[i].equalsIgnoreCase(delete)) {
                             foundDelete = true;
@@ -134,12 +154,13 @@ public class Main {
                     }
                     if (!foundDelete) {
                         System.out.println("Kelime bulunamadı.");
+                        System.out.println("--------------------------------------------------------------------");
                     }
-                    updateFile(kelimeSayisi,ingilizceKelimeDizisi,turkceKelimeDizisi);
+                    updateFile(kelimeSayisi,ingilizceKelimeDizisi,turkceKelimeDizisi,fileName);
                     break;
                 case "6":
                     System.out.println("Program sonlandırılıyor...");
-                    programDevam = false;
+                    pContinue = false;
                     System.out.println("--------------------------------------------------------------------");
                     break;
                 default:
@@ -150,8 +171,8 @@ public class Main {
         }
         scanner.close();
     }
-    public static void updateFile(int kelimeSayisi,String[] ingilizceKelimeDizisi,String[] turkceKelimeDizisi){
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("Words.txt"))) {
+    public static void updateFile(int kelimeSayisi,String[] ingilizceKelimeDizisi,String[] turkceKelimeDizisi,String fileName){
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(fileName))) {
             for (int i = 0; i < kelimeSayisi; i++) {
                 bw.write(ingilizceKelimeDizisi[i] + " = " + turkceKelimeDizisi[i]);
                 bw.newLine();
