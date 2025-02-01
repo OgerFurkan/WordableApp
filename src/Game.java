@@ -62,7 +62,7 @@ public class Game {
                     tempI=ingilizce.clone();
                     tempT=turkce.clone();
                     result(falseWordsT, correctAnswerT, falseAnswerT);
-
+                    break;
                 case "2":
                     String[] falseWordsI =new String[maxSize*2];
                     int indexNI =0;
